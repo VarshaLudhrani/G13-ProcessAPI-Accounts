@@ -55,6 +55,7 @@ Name : value.customerId
 	"Id" : payload[0].ProductId__c as Number
 }]]]></http:uri-params>
 		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="a8e08f2d-d608-486a-8d11-7324a5e6413a" message="#[payload]"/>
 	</flow>
 	<flow name="putOrder" doc:id="06a3b9b1-648c-47eb-bb4a-a0e89827a41d" >
 		<http:request method="GET" doc:name="Request" doc:id="16847061-93f9-4f55-a237-32991b48a47a" path="/addressId" target="addressId" config-ref="HTTP_Request_configuration">

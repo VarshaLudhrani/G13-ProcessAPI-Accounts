@@ -15,6 +15,10 @@
             <SizeBasedTriggeringPolicy size="10 MB"/>
             <DefaultRolloverStrategy max="10"/>
         </RollingFile>
+        <SplunkHttp name="splunk"
+			url="https://prd-p-6dgq6.splunkcloud.com:8088/" token="9ab7d979-7f52-4202-9364-397d8cb19a9f" index="main" disableCertificateValidation="true">
+			<PatternLayout pattern="%-5p %d [%t] [event: %X{correlationId}] %c: %m%n" />
+		</SplunkHttp>
     </Appenders>
 
     <Loggers>
@@ -28,6 +32,8 @@
 
         <AsyncRoot level="INFO">
             <AppenderRef ref="file"/>
+             <AppenderRef ref="splunk" />
+			<AppenderRef ref="Console"/>
         </AsyncRoot>
     </Loggers>
 

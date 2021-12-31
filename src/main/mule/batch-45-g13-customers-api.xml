@@ -195,6 +195,7 @@ payload map (value,index) -> {
     }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="fa3944cc-9ab0-469f-af34-6aac3adc7866" message="#[payload]"/>
     </flow>
     <flow name="get:\customersAddress:batch-45-g13-customers-api-config">
         <flow-ref doc:name="Flow Reference" doc:id="3baf2c8e-1002-4fa8-8ee4-d8546905d6ff" name="getaddress"/>
@@ -241,6 +242,7 @@ payload map (value,index) ->
 }]]></ee:set-payload>
             </ee:message>
         </ee:transform>
+		<logger level="INFO" doc:name="Logger" doc:id="2db03080-4728-4884-90c6-4b6bc8372060" message="#[payload]"/>
     </flow>
     <flow name="get:\payments:batch-45-g13-customers-api-config">
         <flow-ref doc:name="Flow Reference" doc:id="59172726-ef70-4af1-b361-5298574b52ef" name="getpayment"/>
