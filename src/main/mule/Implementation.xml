@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="685cc9fe-11a3-4f8f-9c21-0134cb203b81" >
+		<http:listener-connection host="0.0.0.0" port="8082" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="be8c6a74-84be-4e51-9d80-e206a12e8c2b" >
+		<http:request-connection host="g13-sys-accounts-api.us-e2.cloudhub.io" />
+	</http:request-config>
+	<http:request-config name="HTTP_Request_configuration(inventory)" doc:name="HTTP Request configuration" doc:id="c5c9e6b1-2e7b-428f-ade5-a9882ea2ce29" >
+		<http:request-connection host="g13-sys-inventory-api.us-e2.cloudhub.io" />
+	</http:request-config>
+	<flow name="putcustomers" doc:id="2071cda7-84cc-41c9-85f8-317de82f321a" >
+		<ee:transform doc:name="Transform Message" doc:id="2d915563-82e8-48a2-a698-49a243c4b06c" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map (value,index)->{
+Username__c: value.userName,
+CustomerEmail__c: value.customerEmail,
+PhoneNumber__c: value.phoneNo,
+Name : value.customerId
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PUT" doc:name="Request" doc:id="6713aeec-6670-46df-89d1-8938e94ce3bd" path="/account" config-ref="HTTP_Request_configuration"/>
+		<logger level="INFO" doc:name="Logger" doc:id="54302a06-db2b-4e1c-a2ad-d5e5fd0c3efc" message="#[payload]"/>
+	</flow>
+	<flow name="getAccounts" doc:id="8997ed96-e323-447e-a374-62127a372d82" >
+		<http:request method="GET" doc:name="Request" doc:id="3f2a1d12-e7a1-4ae5-8c21-a0f90075eb56" config-ref="HTTP_Request_configuration" path="/accounts"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e9172e5b-4cc4-49de-9f27-1da3f87b1319" message="#[payload]"/>
+	</flow>
+	<flow name="getAccountsByID" doc:id="5b0c4aab-33fd-48c2-bb6d-13cde3c406af" >
+		<http:request method="GET" doc:name="Request" doc:id="20f60a84-e585-42ee-bdaa-9016c0b6d2ca" config-ref="HTTP_Request_configuration" path="/accounts/{Name}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"Name" : vars.customerID
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="69435f50-7183-40ab-aa1e-a0c84723efbf" message="#[payload]"/>
+	</flow>
+	<flow name="getOrders" doc:id="8491430f-0255-402d-a898-1278c0302947" >
+		<http:request method="GET" doc:name="Request" doc:id="ca9318bc-7289-402f-9905-f28b8806903a" config-ref="HTTP_Request_configuration" path="/orders" />
+		<http:request method="GET" doc:name="Request" doc:id="0379b5d3-ee53-4576-8d8c-fa3d9859d20f" config-ref="HTTP_Request_configuration" path="/products/{Id}" target="productName" >
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"Id" : payload[0].ProductId__c as Number
+}]]]></http:uri-params>
+		</http:request>
+	</flow>
+	<flow name="putOrder" doc:id="06a3b9b1-648c-47eb-bb4a-a0e89827a41d" >
+		<http:request method="GET" doc:name="Request" doc:id="16847061-93f9-4f55-a237-32991b48a47a" path="/addressId" target="addressId" config-ref="HTTP_Request_configuration">
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"Name" : payload[0].AddressId
+}]]]></http:query-params>
+		</http:request>
+		<http:request method="GET" doc:name="Request" doc:id="a1f17d1a-4ea1-4c67-93b7-e5a46c9c0465" path="/paymentId" target="paymentId" config-ref="HTTP_Request_configuration">
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"Name" : payload[0].PaymentId
+}]]]></http:query-params>
+		</http:request>
+		<http:request method="GET" doc:name="Request" doc:id="35fbaebc-8bdd-4137-9af7-6c0cfbd55fbd" config-ref="HTTP_Request_configuration" path="/orderId" target="myvar">
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"Name" : payload[0].OrderID
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="c9ea965b-deb8-46e7-8e47-22c56eed4ef7" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map (value,index) -> {
+    "Amount__c": value.Amount,
+    "AddressId__c": vars.addressId[0].Id,
+    "PaymentId__c": vars.paymentId[0].Id,
+    "ProductId__c": value.ProductId,
+    "Status__c": value.status,
+    "Id": vars.myvar[0].Id,
+    "Name": value.OrderID
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="PUT" doc:name="Request" doc:id="c9d5ade9-9e2a-4188-9a91-2130c7527d50" config-ref="HTTP_Request_configuration" path="/order"/>
+	</flow>
+	<flow name="postOrder" doc:id="0f43cc5a-1b62-4ad5-a2b4-c63e9a1d8eeb" >
+		<http:request method="GET" doc:name="Request" doc:id="89d86896-1b14-4fb6-bb39-0499769e2f21" config-ref="HTTP_Request_configuration" path="/addressId" target="addressId">
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"Name" : payload[0].AddressId
+}]]]></http:query-params>
+		</http:request>
+		<http:request method="GET" doc:name="Request" doc:id="b218a3d5-2c6f-4a7c-8c00-92bd1b23513a" config-ref="HTTP_Request_configuration" path="/paymentId" target="paymentId">
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"Name" : payload[0].PaymentId
+}]]]></http:query-params>
+		</http:request>
+		<ee:transform doc:name="Transform Message" doc:id="f395ffe7-f4e4-4a68-be26-5bec3518f888">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload map (value,index)->{
+    "Amount__c": value.Amount,
+    "AddressId__c": vars.addressId[0].Id,
+    "PaymentId__c": vars.paymentId[0].Id,
+    "ProductId__c": value.ProductId,
+    "Status__c": value.status,
+    "OrderId__c": value.OrderId
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="05c9b2de-f925-45a5-935d-85e48a2d2f36" config-ref="HTTP_Request_configuration" path="/order">
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="dd2b3697-9efd-491e-9836-ae76134b92ca" message="#[payload]"/>
+	</flow>
+	<flow name="postpayment" doc:id="d0d40d27-53dc-4247-a7e9-3bba3a2c1439" >
+		<http:request method="GET" doc:name="Request" doc:id="ecebbc55-b712-4edc-90c7-66073c752d9c" config-ref="HTTP_Request_configuration" path="/accountId" target="Acc">
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"Name" : payload[0].CustomerId
+}]]]></http:query-params>
+		</http:request>
+		<http:request method="POST" doc:name="Request" doc:id="a0666ce0-0c06-4c07-9815-092cb4d4baae" config-ref="HTTP_Request_configuration" path="/payment">
+			<http:body ><![CDATA[#[payload map ( payload01 , indexOfPayload01 ) -> {
+	CustomerId__c: vars.Acc[0].Id,
+	Amount__c: payload01.Amount,
+	Mode__c: payload01.Mode
+	
+}]]]></http:body>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="9c258d91-489c-43ec-90f7-a50745b56189" message="payload"/>
+	</flow>
+	<flow name="getaddress" doc:id="d7543b1b-3950-4b46-887f-802db60a768a" >
+		<http:request method="GET" doc:name="Request" doc:id="da2bfb56-dd1f-4864-a3fc-21ec74e2e4b0" config-ref="HTTP_Request_configuration" path="/address"/>
+		<logger level="INFO" doc:name="Logger" doc:id="3b6d72ac-46f7-4852-ac7e-76b782580e79" message="#[payload]"/>
+	</flow>
+	<flow name="getOrdersByID" doc:id="474ec9b3-c75c-400f-ba0f-eddd01345701" >
+		<http:request method="GET" doc:name="Request" doc:id="45c99fcf-e373-475d-acde-126a7198bbdf" config-ref="HTTP_Request_configuration(inventory)" path="/products" target="productName"/>
+		<http:request method="DELETE" doc:name="Request" doc:id="f794d1a8-9291-4174-afb8-fabfe566e617" config-ref="HTTP_Request_configuration" path="/order/{Name}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"Name" : vars.OrderID
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="55a9dea2-2410-4a6e-8505-1893d0fdca59" message="#[payload]"/>
+	</flow>
+	<flow name="deletecustomerbyID" doc:id="963a4431-1da1-4b6d-ae00-3f2db3fd0622" >
+		<http:request method="DELETE" doc:name="Request" doc:id="d79654bd-72e4-45f6-9d1d-19ac0c472c30" config-ref="HTTP_Request_configuration" path="/account">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"Name" : vars.customerID
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="e7cae3de-ffcc-4fd0-87ee-85cb9af47257" message="#[payload]"/>
+	</flow>
+	<flow name="postcustomeraddress" doc:id="516d7b6e-59c6-4489-9989-8813aebbccbb" >
+		<http:request method="GET" doc:name="Request" doc:id="2710de19-0948-4c11-9f9f-10224a763067" config-ref="HTTP_Request_configuration" path="/accountId" target="Temp">
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"Name" : payload[0].CustomerId
+}]]]></http:query-params>
+		</http:request>
+		<http:request method="POST" doc:name="Request" doc:id="a5c909db-419c-4162-9d28-9d48cb8f41ce" config-ref="HTTP_Request_configuration" path="/address">
+			<http:body ><![CDATA[#[%dw 2.0
+output application/json
+---
+{
+ "CustomerId__c": vars.Temp[0].Id,
+ "CustomerEmail__c" : payload.customerEmail,
+ "UserName__c": payload.userName,
+ "AddressId__c" : payload.addressId,
+ "PhoneNumber__c":payload.phoneNo,
+  "Address__c": payload.address,
+  "Zipcode__c" : payload.zipcode
+}]]]></http:body>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="37a9cc96-91fb-4bb3-b307-ae3fd93efa9c" message="#[payload]"/>
+	</flow>
+	<flow name="postcustomers" doc:id="ee431df8-f33e-40f4-b8ed-ee5c98af4b02" >
+		<ee:transform doc:name="Transform Message" doc:id="d004bef8-5fc5-49a6-afd2-0e883e0ef97f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload map (value,index)->{
+Username__c: value.userName,
+CustomerEmail__c: value.customerEmail,
+PhoneNumber__c: value.phoneNo
+}
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="bd6dc1e2-9d6f-4a8a-bfc7-ed846ae4e848" config-ref="HTTP_Request_configuration" path="/account"/>
+		<logger level="INFO" doc:name="Logger" doc:id="e1bb6b6b-e8c0-44ca-85f3-3384ba0c5cbd" message="#[payload]"/>
+	</flow>
+	<flow name="getpayment" doc:id="f211ae7d-1a96-4b98-aa17-21844a5c90bd" >
+		<http:request method="GET" doc:name="Request" doc:id="d2727876-bce5-4adb-bbcf-93063947748c" config-ref="HTTP_Request_configuration" path="/payment"/>
+	</flow>
+	<flow name="putcustomeraddress" doc:id="bcff9a8f-ed95-4625-a5ec-551f766ced57" >
+		<http:request method="GET" doc:name="Request" doc:id="4fff4292-7afb-4d96-a025-01e90ee6c40f" config-ref="HTTP_Request_configuration" path="/accountId" target="Temp" >
+			<http:query-params ><![CDATA[#[output application/json
+---
+{
+	"Name" : payload[0].CustomerId
+}]]]></http:query-params>
+		</http:request>
+		<http:request method="GET" doc:name="Request" doc:id="91f2c378-4b54-457f-9e72-72b711cd0304" config-ref="HTTP_Request_configuration" path="/addressId" target="mytemp"/>
+		<ee:transform doc:name="Transform Message" doc:id="c88b1924-b7a4-4243-8e22-2946d3dd5a83" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+ "CustomerId__c": vars.Temp[0].Id,
+ "CustomerEmail__c" : payload.customerEmail,
+ "UserName__c": payload.userName,
+ "AddressId__c" : vars.myTemp[0].Id,
+ "PhoneNumber__c":payload.phoneNo,
+  "Address__c": payload.address,
+  "Zipcode__c" : payload.zipcode
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<http:request method="POST" doc:name="Request" doc:id="baeb0c1b-4172-4ce3-9b6b-3392cc933445" config-ref="HTTP_Request_configuration" path="/address" >
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="600530af-0e35-4450-b895-49be696a68ae" message="#[payload]" />
+	</flow>
+	<flow name="getcustomeraddressbyId" doc:id="6c8e57c3-50dd-46de-8b8b-f2aca2e789fa" >
+		<http:request method="GET" doc:name="Request" doc:id="365c73bb-2a09-48c1-be28-302c9a6118b7" config-ref="HTTP_Request_configuration" path="/address/{Name}">
+			<http:uri-params ><![CDATA[#[output application/java
+---
+{
+	"Name" : vars.addressID
+}]]]></http:uri-params>
+		</http:request>
+		<logger level="INFO" doc:name="Logger" doc:id="2d4ae251-6858-4793-9ab0-1ac2d79cba08" message="#[payload]"/>
+	</flow>
+</mule>

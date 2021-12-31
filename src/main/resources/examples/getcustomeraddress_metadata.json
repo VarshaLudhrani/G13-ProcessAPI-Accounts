@@ -1,0 +1,16 @@
+[{
+    "PhoneNumber__c": "109087689",
+    "CustomerId__r": {
+      "CustomerEmail__c": "james@gmail.com",
+      "PhoneNumber__c": "16465106476",
+      "Username__c": "James",
+      "Id": "a035j000002gEa7AAE",
+      "type": "G13_Account__c",
+      "Name": "C-001"
+    },
+    "ZipCode__c": "94105",
+    "Id": "a045j000002jzIEAAY",
+    "type": "G13_Address__c",
+    "Name": "A-001",
+    "Address__c": "415 Mission St"
+  }]

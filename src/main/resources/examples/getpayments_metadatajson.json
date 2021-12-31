@@ -1,0 +1,16 @@
+ [{
+ "Amount__c": "5671.62",
+    "CustomerId__r": {
+      "CustomerEmail__c": "james@gmail.com",
+      "PhoneNumber__c": "16465106476",
+      "Username__c": "James",
+      "Id": "a035j000002gEa7AAE",
+      "type": "G13_Account__c",
+      "Name": "C-001"
+    },
+    "Mode__c": null,
+    "Id": "a055j000000jakIAAQ",
+    "type": "G13_Payment__c",
+    "Status__c": null,
+    "Name": "P-003"
+  }]
