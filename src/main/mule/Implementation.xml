@@ -234,4 +234,8 @@ payload map (value,index) -> {
 		</http:request>
 		<logger level="INFO" doc:name="Logger" doc:id="2d4ae251-6858-4793-9ab0-1ac2d79cba08" message="#[payload]"/>
 	</flow>
+	<flow name="getWishlist" doc:id="c43870b1-6360-4d3d-ba0e-55f8bc19c98d" >
+		<http:request method="GET" doc:name="Request" doc:id="ed29708d-afa8-4263-a11b-7f0c6c205727" config-ref="HTTP_Request_configuration" path="/wishlist"/>
+		<logger level="INFO" doc:name="Logger" doc:id="976b87b1-ced7-46db-8a79-fe18089c4be9" message="#[payload]"/>
+	</flow>
 </mule>

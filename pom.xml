@@ -89,13 +89,6 @@
 			<classifier>mule-plugin</classifier>
 		</dependency>
 		<dependency>
-			<groupId>bee86369-a633-4b02-a943-9de19f5932cb</groupId>
-			<artifactId>batch-45-g13-customers-api</artifactId>
-			<version>3.0.1</version>
-			<classifier>raml</classifier>
-			<type>zip</type>
-		</dependency>
-		<dependency>
 			<groupId>com.mulesoft.munit</groupId>
 			<artifactId>munit-runner</artifactId>
 			<version>2.3.6</version>
@@ -120,6 +113,13 @@
 			<artifactId>mule-apikit-module</artifactId>
 			<version>1.5.8</version>
 			<classifier>mule-plugin</classifier>
+		</dependency>
+		<dependency>
+			<groupId>bee86369-a633-4b02-a943-9de19f5932cb</groupId>
+			<artifactId>batch-45-g13-customers-api</artifactId>
+			<version>3.0.6</version>
+			<classifier>raml</classifier>
+			<type>zip</type>
 		</dependency>
 	</dependencies>
 
