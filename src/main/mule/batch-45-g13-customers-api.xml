@@ -100,7 +100,8 @@ output application/json
         </error-handler>
     </flow>
     <flow name="put:\customersAddress:application\json:batch-45-g13-customers-api-config">
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+        <flow-ref doc:name="Flow Reference" doc:id="7af77da4-08a3-4b28-8d44-e749df40b85f" name="putcustomeraddress"/>
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
@@ -209,8 +210,7 @@ payload map (value,index) ->
 	OrderDetails: {
 		OrderId: value.Name,
 		Amount: value.Amount__c,
-		ProductId: value.ProductId__c,
-		Product_Details: vars.productName.NAME
+		ProductId: value.ProductId__c
 	},
 	PaymentId: value.PaymentId__r.Name
 }]]></ee:set-payload>
@@ -259,8 +259,7 @@ payload map (value,index) ->
 	OrderDetails: {
 		OrderId: value.Name,
 		Amount: value.Amount__c,
-		ProductId: value.ProductId__c,
-		Product_Details: vars.productName.ID.NAME
+		ProductId: value.ProductId__c
 	},
 	PaymentId: value.PaymentId__r.Name
 }]]></ee:set-payload>
@@ -318,7 +317,7 @@ output application/json
                 <ee:set-variable variableName="paymentID">attributes.uriParams.'paymentID'</ee:set-variable>
             </ee:variables>
         </ee:transform>
-        <ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+		<ee:transform xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
             <ee:message>
                 <ee:set-payload><![CDATA[%dw 2.0
 output application/json
