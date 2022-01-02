@@ -5,9 +5,6 @@
 	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
 http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
 http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
-	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="685cc9fe-11a3-4f8f-9c21-0134cb203b81" >
-		<http:listener-connection host="0.0.0.0" port="8082" />
-	</http:listener-config>
 	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="be8c6a74-84be-4e51-9d80-e206a12e8c2b" >
 		<http:request-connection host="g13-sys-accounts-api.us-e2.cloudhub.io" />
 	</http:request-config>
@@ -48,13 +45,6 @@ Name : value.customerId
 	</flow>
 	<flow name="getOrders" doc:id="8491430f-0255-402d-a898-1278c0302947" >
 		<http:request method="GET" doc:name="Request" doc:id="ca9318bc-7289-402f-9905-f28b8806903a" config-ref="HTTP_Request_configuration" path="/orders" />
-		<http:request method="GET" doc:name="Request" doc:id="0379b5d3-ee53-4576-8d8c-fa3d9859d20f" config-ref="HTTP_Request_configuration" path="/products/{Id}" target="productName" >
-			<http:uri-params ><![CDATA[#[output application/java
----
-{
-	"Id" : payload[0].ProductId__c as Number
-}]]]></http:uri-params>
-		</http:request>
 	</flow>
 	<flow name="putOrder" doc:id="06a3b9b1-648c-47eb-bb4a-a0e89827a41d" >
 		<http:request method="GET" doc:name="Request" doc:id="16847061-93f9-4f55-a237-32991b48a47a" path="/addressId" target="addressId" config-ref="HTTP_Request_configuration">
@@ -71,13 +61,6 @@ Name : value.customerId
 	"Name" : payload[0].PaymentId
 }]]]></http:query-params>
 		</http:request>
-		<http:request method="GET" doc:name="Request" doc:id="35fbaebc-8bdd-4137-9af7-6c0cfbd55fbd" config-ref="HTTP_Request_configuration" path="/orderId" target="myvar">
-			<http:query-params ><![CDATA[#[output application/json
----
-{
-	"Name" : payload[0].OrderID
-}]]]></http:query-params>
-		</http:request>
 		<ee:transform doc:name="Transform Message" doc:id="c9ea965b-deb8-46e7-8e47-22c56eed4ef7" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
@@ -89,7 +72,6 @@ payload map (value,index) -> {
     "PaymentId__c": vars.paymentId[0].Id,
     "ProductId__c": value.ProductId,
     "Status__c": value.status,
-    "Id": vars.myvar[0].Id,
     "Name": value.OrderID
 }]]></ee:set-payload>
 			</ee:message>
@@ -153,8 +135,7 @@ payload map (value,index)->{
 		<logger level="INFO" doc:name="Logger" doc:id="3b6d72ac-46f7-4852-ac7e-76b782580e79" message="#[payload]"/>
 	</flow>
 	<flow name="getOrdersByID" doc:id="474ec9b3-c75c-400f-ba0f-eddd01345701" >
-		<http:request method="GET" doc:name="Request" doc:id="45c99fcf-e373-475d-acde-126a7198bbdf" config-ref="HTTP_Request_configuration(inventory)" path="/products" target="productName"/>
-		<http:request method="DELETE" doc:name="Request" doc:id="f794d1a8-9291-4174-afb8-fabfe566e617" config-ref="HTTP_Request_configuration" path="/order/{Name}">
+		<http:request method="GET" doc:name="Request" doc:id="f794d1a8-9291-4174-afb8-fabfe566e617" config-ref="HTTP_Request_configuration" path="/order/{Name}">
 			<http:uri-params ><![CDATA[#[output application/java
 ---
 {
@@ -225,20 +206,17 @@ PhoneNumber__c: value.phoneNo
 	"Name" : payload[0].CustomerId
 }]]]></http:query-params>
 		</http:request>
-		<http:request method="GET" doc:name="Request" doc:id="91f2c378-4b54-457f-9e72-72b711cd0304" config-ref="HTTP_Request_configuration" path="/addressId" target="mytemp"/>
 		<ee:transform doc:name="Transform Message" doc:id="c88b1924-b7a4-4243-8e22-2946d3dd5a83" >
 			<ee:message >
 				<ee:set-payload ><![CDATA[%dw 2.0
 output application/json
 ---
-{
+payload map (value,index) -> {
  "CustomerId__c": vars.Temp[0].Id,
- "CustomerEmail__c" : payload.customerEmail,
- "UserName__c": payload.userName,
- "AddressId__c" : vars.myTemp[0].Id,
- "PhoneNumber__c":payload.phoneNo,
-  "Address__c": payload.address,
-  "Zipcode__c" : payload.zipcode
+ "Name": value.Name,
+ "PhoneNumber__c":value.phoneNo,
+  "Address__c": value.address,
+  "Zipcode__c" : value.zipcode
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
@@ -255,5 +233,9 @@ output application/json
 }]]]></http:uri-params>
 		</http:request>
 		<logger level="INFO" doc:name="Logger" doc:id="2d4ae251-6858-4793-9ab0-1ac2d79cba08" message="#[payload]"/>
+	</flow>
+	<flow name="getWishlist" doc:id="c43870b1-6360-4d3d-ba0e-55f8bc19c98d" >
+		<http:request method="GET" doc:name="Request" doc:id="ed29708d-afa8-4263-a11b-7f0c6c205727" config-ref="HTTP_Request_configuration" path="/wishlist"/>
+		<logger level="INFO" doc:name="Logger" doc:id="976b87b1-ced7-46db-8a79-fe18089c4be9" message="#[payload]"/>
 	</flow>
 </mule>
